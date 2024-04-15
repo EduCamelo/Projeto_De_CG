@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <math.h>
 
-bool aux = false;
+bool aux = true, aux2 = false;
+
 void drawBezierCurve(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3) {
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_LINE_STRIP);
@@ -23,6 +24,9 @@ static void teclado(GLFWwindow* window, int key, int scancode, int action, int m
 
     if (key == GLFW_KEY_A && action == GLFW_PRESS) {
         aux = !aux;
+    }
+    if (key == GLFW_KEY_S && action == GLFW_PRESS) {
+        aux2 = !aux2;
     }
     
 }
@@ -87,7 +91,9 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Primeira curva
+     if (aux2) {
+        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Primeira curva
+    }
 
     x0 =x3, x1 =0.44f, x2 =0.60f ,x3 = 0.26f, y0 =y3, y1 = 0.57f, y2 = 0.70f, y3 = 0.46f;
     if (!aux) {
@@ -99,7 +105,9 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-   drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Segunda curva
+     if (aux2) {
+        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Segunda curva
+    }
 
     x0 = 0.19f, y0 = -0.47f , x1 = 0.43f, x2 = -0.08f, x3 = 0.76f, y1 = -0.80f, y2 = -1.30f, y3 = -0.69f;
     if (!aux) {
@@ -111,7 +119,10 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Terceira
+    
+    if (aux2) {
+        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Terceira
+    }
 
     x0 = x3, y0 = y3, x1 = 1.16f, y1 = -0.31f, x2 = 1.12f, y2 = 0.94f, x3 = 0.0f, y3 = 0.97f;
     if (!aux) {
@@ -123,10 +134,13 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Quarta
+    
+    if (aux2) {
+        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Quarta
+    }
 
 
-    x0 = 0.26, y0 = 0.46, x1 = 0.11f, y1 = 0.50f, x2 = -0.07f, y2 = 0.51f, x3 = -0.25f, y3 = 0.46f;
+    x0 = 0.26f, y0 = 0.46f, x1 = 0.11f, y1 = 0.50f, x2 = -0.07f, y2 = 0.51f, x3 = -0.25f, y3 = 0.46f;
     if (!aux) {
         glBegin(GL_LINE_STRIP);
         glColor3f(1.0f, 0.0f, 1.0f);
@@ -136,7 +150,10 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Quinta
+    
+    if (aux2) {
+        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Quinta
+    }
 
     x0 = x3, y0 = y3, x1 = -0.51f, y1 = 0.63f, x2 = -0.61f, y2 = 0.62f, x3 = -0.54f, y3 = 0.30f;
     if (!aux) {
@@ -148,7 +165,10 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Sexta
+    
+    if (aux2) {
+        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Sexta
+    }
 
     x0 = x3, y0 = y3, x1 = -0.73f, y1 = 0.30f, x2 = -0.66f, y2 = -0.45f, x3 = -0.19f, y3 = -0.46f;
     if (!aux) {
@@ -160,7 +180,10 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Setima
+    
+    if (aux2) {
+        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Setima
+    }
 
     x0 = x3, y0 = y3, x1 = -0.30f, y1 = -0.57f, x2 = -0.15f, y2 = -0.63f, x3 = -0.41f, y3 = -0.62f;
     if (!aux) {
@@ -172,7 +195,11 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Oitava
+    
+    if (aux2) {
+
+        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Oitava
+    }
 
     x0 = x3, y0 = y3, x1 = -0.60f, y1 = -0.55f, x2 = -0.50f, y2 = -0.40f, x3 = -0.74f, y3 = -0.42f;
     if (!aux) {
@@ -184,7 +211,10 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Nona
+    
+    if (aux2) {
+        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Nona
+    }
 
     x0 = x3, y0 = y3, x1 = -0.52f, y1 = -0.57f, x2 = -0.64f, y2 = -0.72f, x3 = -0.36f, y3 = -0.76f;
     if (!aux) {
@@ -196,7 +226,10 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima
+    
+    if (aux2) {
+        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima
+    }
 
     x0 = x3, y0 = y3, x1 = -0.15f, y1 = -0.67f, x2 = -0.22f, y2 = -1.05f, x3 = -0.33f, y3 = -0.96f;
     if (!aux) {
@@ -208,7 +241,10 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima primeira
+    
+    if(aux2) {
+        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima primeira
+    }
 
     x0 = 0.0f, y0 = 0.96f, x1 = -1.33f, y1 = 0.86f, x2 = -1.20f, y2 = -0.72f;
     if (!aux) {
@@ -220,7 +256,10 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima segunda
+    
+    if(aux2) {
+        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima segunda
+    }
 
 
         /* Poll for and process events */
