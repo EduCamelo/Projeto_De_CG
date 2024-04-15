@@ -1,8 +1,17 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <math.h>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
 
-bool aux = true, aux2 = false;
+struct Vertex {
+    float x, y;
+};
+
+
+bool aux = false, aux2 = false;
 
 void drawBezierCurve(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3) {
     glColor3f(1.0f, 0.0f, 0.0f);
@@ -16,6 +25,27 @@ void drawBezierCurve(float x0, float y0, float x1, float y1, float x2, float y2,
     glEnd();
 }
 
+bool loadObj(const char* filename, std::vector<Vertex>& vertices) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo.\n";
+        return false;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.substr(0, 2) == "v ") {
+            Vertex vertex;
+            sscanf_s(line.c_str(), "v %f %f", &vertex.x, &vertex.y);
+            vertices.push_back(vertex);
+        }
+    }
+
+    file.close();
+    return true;
+}
+
+
 static void teclado(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if ((key == GLFW_KEY_ESCAPE || key == GLFW_KEY_Q) && action == GLFW_PRESS) {
@@ -25,10 +55,6 @@ static void teclado(GLFWwindow* window, int key, int scancode, int action, int m
     if (key == GLFW_KEY_A && action == GLFW_PRESS) {
         aux = !aux;
     }
-    if (key == GLFW_KEY_S && action == GLFW_PRESS) {
-        aux2 = !aux2;
-    }
-    
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -38,6 +64,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 int main(void)
 {
+    std::vector<Vertex> vertices;
     GLFWwindow* window;
 
     /* Initialize the library */
@@ -91,7 +118,7 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-     if (aux2) {
+    else{
         drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Primeira curva
     }
 
@@ -105,7 +132,7 @@ int main(void)
         glVertex2f(x3 / 2, y3 / 2);
         glEnd();
     }
-     if (aux2) {
+    else {
         drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Segunda curva
     }
 
@@ -120,7 +147,7 @@ int main(void)
         glEnd();
     }
     
-    if (aux2) {
+    else{
         drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Terceira
     }
 
@@ -135,7 +162,7 @@ int main(void)
         glEnd();
     }
     
-    if (aux2) {
+    else {
         drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Quarta
     }
 
@@ -151,7 +178,7 @@ int main(void)
         glEnd();
     }
     
-    if (aux2) {
+    else {
         drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Quinta
     }
 
@@ -166,7 +193,7 @@ int main(void)
         glEnd();
     }
     
-    if (aux2) {
+    else {
         drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Sexta
     }
 
@@ -181,7 +208,7 @@ int main(void)
         glEnd();
     }
     
-    if (aux2) {
+    else {
         drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Setima
     }
 
@@ -196,7 +223,7 @@ int main(void)
         glEnd();
     }
     
-    if (aux2) {
+    else {
 
         drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Oitava
     }
@@ -212,7 +239,7 @@ int main(void)
         glEnd();
     }
     
-    if (aux2) {
+    else {
         drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Nona
     }
 
@@ -227,7 +254,7 @@ int main(void)
         glEnd();
     }
     
-    if (aux2) {
+    else {
         drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima
     }
 
@@ -242,7 +269,7 @@ int main(void)
         glEnd();
     }
     
-    if(aux2) {
+    else {
         drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima primeira
     }
 
@@ -257,10 +284,16 @@ int main(void)
         glEnd();
     }
     
-    if(aux2) {
+    else {
         drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima segunda
     }
 
+    if (loadObj("caminho_do_arquivo.obj", vertices)) {
+        // Processar os dados
+        for (const auto& vertex : vertices) {
+            std::cout << "Vertex: " << vertex.x << ", " << vertex.y<< std::endl;
+        }
+    }
 
         /* Poll for and process events */
         glfwSwapBuffers(window);
