@@ -11,7 +11,7 @@ struct Vertex {
 };
 
 
-bool aux = false, aux2 = false;
+bool aux = false, aux2 = false, aux3 = true;
 
 void drawBezierCurve(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3) {
     glColor3f(1.0f, 0.0f, 0.0f);
@@ -37,6 +37,8 @@ bool loadObj(const char* filename, std::vector<Vertex>& vertices) {
         if (line.substr(0, 2) == "v ") {
             Vertex vertex;
             sscanf_s(line.c_str(), "v %f %f", &vertex.x, &vertex.y);
+            vertex.x = (vertex.x*2) / 100;
+            vertex.y = (vertex.y* 2) / 100;
             vertices.push_back(vertex);
         }
     }
@@ -52,8 +54,12 @@ static void teclado(GLFWwindow* window, int key, int scancode, int action, int m
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 
-    if (key == GLFW_KEY_A && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
         aux = !aux;
+    }
+
+    if(key == GLFW_KEY_A && action == GLFW_PRESS) {
+        aux3 = !aux3;
     }
 }
 
@@ -104,204 +110,265 @@ int main(void)
   
 
     // Define os pontos de controle da curva de Bézier
-    float x0 = 0.19f, y0 = -0.47f;
-    float x1 = 0.61f, y1 = -0.45f;
-    float x2 = 0.75f, y2 = -0.03f;
-    float x3 = 0.55f, y3 = 0.3f;
+            if (aux3) {
+                float x0 = 0.19f, y0 = -0.47f;
+                float x1 = 0.66f, y1 = -0.45f;
+                float x2 = 0.73f, y2 = -0.07f;
+                float x3 = 0.54f, y3 = 0.3f;
 
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex2f(x0 / 2, y0 / 2);
-        glVertex2f(x1 / 2, y1 / 2);
-        glVertex2f(x2 / 2, y2 / 2);
-        glVertex2f(x3 / 2, y3 / 2);
-        glEnd();
-    }
-    else{
-        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Primeira curva
-    }
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
+                else {
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Primeira curva
+                }
 
-    x0 =x3, x1 =0.44f, x2 =0.60f ,x3 = 0.26f, y0 =y3, y1 = 0.57f, y2 = 0.70f, y3 = 0.46f;
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex2f(x0 / 2, y0 / 2);
-        glVertex2f(x1 / 2, y1 / 2);
-        glVertex2f(x2 / 2, y2 / 2);
-        glVertex2f(x3 / 2, y3 / 2);
-        glEnd();
-    }
-    else {
-        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Segunda curva
-    }
+                x0 = x3, y0 = y3,
+                    x1 = 0.60f, y1 = 0.64f,
+                    x2 = 0.50f, y2 = 0.60f,
+                    x3 = 0.25f, y3 = 0.46f;
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
+                else {
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Segunda curva
+                }
 
-    x0 = 0.19f, y0 = -0.47f , x1 = 0.43f, x2 = -0.08f, x3 = 0.76f, y1 = -0.80f, y2 = -1.30f, y3 = -0.69f;
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex2f(x0 / 2, y0 / 2);
-        glVertex2f(x1 / 2, y1 / 2);
-        glVertex2f(x2 / 2, y2 / 2);
-        glVertex2f(x3 / 2, y3 / 2);
-        glEnd();
-    }
-    
-    else{
-        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Terceira
-    }
+                x0 = x3, y0 = y3,
+                    x1 = 0.13f, y1 = 0.48f,
+                    x2 = 0.01f, y2 = 0.52f,
+                    x3 = -0.25f, y3 = 0.46f;
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
 
-    x0 = x3, y0 = y3, x1 = 1.16f, y1 = -0.31f, x2 = 1.12f, y2 = 0.94f, x3 = 0.0f, y3 = 0.97f;
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex2f(x0 / 2, y0 / 2);
-        glVertex2f(x1 / 2, y1 / 2);
-        glVertex2f(x2 / 2, y2 / 2);
-        glVertex2f(x3 / 2, y3 / 2);
-        glEnd();
-    }
-    
-    else {
-        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Quarta
-    }
+                else {
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Terceira
+                }
+
+                x0 = x3, y0 = y3,
+                    x1 = -0.50f, y1 = 0.60f,
+                    x2 = -0.60f, y2 = 0.64f,
+                    x3 = -0.54f, y3 = 0.30f;
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
+
+                else {
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Quarta
+                }
 
 
-    x0 = 0.26f, y0 = 0.46f, x1 = 0.11f, y1 = 0.50f, x2 = -0.07f, y2 = 0.51f, x3 = -0.25f, y3 = 0.46f;
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex2f(x0 / 2, y0 / 2);
-        glVertex2f(x1 / 2, y1 / 2);
-        glVertex2f(x2 / 2, y2 / 2);
-        glVertex2f(x3 / 2, y3 / 2);
-        glEnd();
-    }
-    
-    else {
-        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Quinta
-    }
+                x0 = x3, y0 = y3,
+                    x1 = -0.73f, y1 = 0.07f,
+                    x2 = -0.66f, y2 = -0.45f,
+                    x3 = -0.19f, y3 = -0.47f;
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
 
-    x0 = x3, y0 = y3, x1 = -0.51f, y1 = 0.63f, x2 = -0.61f, y2 = 0.62f, x3 = -0.54f, y3 = 0.30f;
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex2f(x0 / 2, y0 / 2);
-        glVertex2f(x1 / 2, y1 / 2);
-        glVertex2f(x2 / 2, y2 / 2);
-        glVertex2f(x3 / 2, y3 / 2);
-        glEnd();
-    }
-    
-    else {
-        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Sexta
-    }
+                else {
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Quinta
+                }
 
-    x0 = x3, y0 = y3, x1 = -0.73f, y1 = 0.30f, x2 = -0.66f, y2 = -0.45f, x3 = -0.19f, y3 = -0.46f;
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex2f(x0 / 2, y0 / 2);
-        glVertex2f(x1 / 2, y1 / 2);
-        glVertex2f(x2 / 2, y2 / 2);
-        glVertex2f(x3 / 2, y3 / 2);
-        glEnd();
-    }
-    
-    else {
-        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Setima
-    }
+                x0 = x3, y0 = y3,
+                    x1 = -0.28f, y1 = -0.56f,
+                    x2 = -0.16f, y2 = -0.64f,
+                    x3 = -0.42f, y3 = -0.62f;
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
 
-    x0 = x3, y0 = y3, x1 = -0.30f, y1 = -0.57f, x2 = -0.15f, y2 = -0.63f, x3 = -0.41f, y3 = -0.62f;
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex2f(x0 / 2, y0 / 2);
-        glVertex2f(x1 / 2, y1 / 2);
-        glVertex2f(x2 / 2, y2 / 2);
-        glVertex2f(x3 / 2, y3 / 2);
-        glEnd();
-    }
-    
-    else {
+                else {
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Sexta
+                }
 
-        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Oitava
-    }
+                x0 = x3, y0 = y3,
+                    x1 = -0.54f, y1 = -0.58f,
+                    x2 = -0.53f, y2 = -0.39f,
+                    x3 = -0.73f, y3 = -0.42f;
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
 
-    x0 = x3, y0 = y3, x1 = -0.60f, y1 = -0.55f, x2 = -0.50f, y2 = -0.40f, x3 = -0.74f, y3 = -0.42f;
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex2f(x0 / 2, y0 / 2);
-        glVertex2f(x1 / 2, y1 / 2);
-        glVertex2f(x2 / 2, y2 / 2);
-        glVertex2f(x3 / 2, y3 / 2);
-        glEnd();
-    }
-    
-    else {
-        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Nona
-    }
+                else {
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Setima
+                }
 
-    x0 = x3, y0 = y3, x1 = -0.52f, y1 = -0.57f, x2 = -0.64f, y2 = -0.72f, x3 = -0.36f, y3 = -0.76f;
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex2f(x0 / 2, y0 / 2);
-        glVertex2f(x1 / 2, y1 / 2);
-        glVertex2f(x2 / 2, y2 / 2);
-        glVertex2f(x3 / 2, y3 / 2);
-        glEnd();
-    }
-    
-    else {
-        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima
-    }
+                x0 = x3, y0 = y3,
+                    x1 = -0.77f, y1 = -0.45f,
+                    x2 = -0.65f, y2 = -0.45f,
+                    x3 = -0.56f, y3 = -0.67f;
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
 
-    x0 = x3, y0 = y3, x1 = -0.15f, y1 = -0.67f, x2 = -0.22f, y2 = -1.05f, x3 = -0.33f, y3 = -0.96f;
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex2f(x0 / 2, y0 / 2);
-        glVertex2f(x1 / 2, y1 / 2);
-        glVertex2f(x2 / 2, y2 / 2);
-        glVertex2f(x3 / 2, y3 / 2);
-        glEnd();
-    }
-    
-    else {
-        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima primeira
-    }
+                else {
 
-    x0 = 0.0f, y0 = 0.96f, x1 = -1.33f, y1 = 0.86f, x2 = -1.20f, y2 = -0.72f;
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex2f(x0 / 2, y0 / 2);
-        glVertex2f(x1 / 2, y1 / 2);
-        glVertex2f(x2 / 2, y2 / 2);
-        glVertex2f(x3 / 2, y3 / 2);
-        glEnd();
-    }
-    
-    else {
-        drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima segunda
-    }
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Oitava
+                }
 
-    if (loadObj("caminho_do_arquivo.obj", vertices)) {
-        // Processar os dados
-        for (const auto& vertex : vertices) {
-            std::cout << "Vertex: " << vertex.x << ", " << vertex.y<< std::endl;
-        }
+                x0 = x3, y0 = y3,
+                    x1 = -0.48f, y1 = -0.78f,
+                    x2 = -0.32f, y2 = -0.75f,
+                    x3 = -0.25f, y3 = -0.74f;
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
+
+                else {
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Nona
+                }
+
+                x0 = x3, y0 = y3,
+                    x1 = -0.26f, y1 = -0.90f,
+                    x2 = -0.22f, y2 = -0.96f,
+                    x3 = -0.30f, y3 = -0.98f;
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
+
+                else {
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima
+                }
+
+                x0 = x3, y0 = y3,
+                    x1 = -1.57f, y1 = -0.45f,
+                    x2 = -0.91f, y2 = 1.02f,
+                    x3 = 0.00f, y3 = 0.97f;
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
+
+                else {
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima primeira
+                }
+
+                x0 = x3, y0 = y3,
+                    x1 = 0.91f, y1 = 1.02f,
+                    x2 = 1.57f, y2 = -0.45f,
+                    x3 = 0.30f, y3 = -0.98f;
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
+
+                else {
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima segunda
+                }
+
+                x0 = x3, y0 = y3,
+                    x1 = 0.18f, y1 = -0.96f,
+                    x2 = 0.32f, y2 = -0.67f,
+                    x3 = 0.19f, y3 = -0.47f;
+                if (!aux) {
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.0f, 0.0f, 1.0f);
+                    glVertex2f(x0 / 2, y0 / 2);
+                    glVertex2f(x1 / 2, y1 / 2);
+                    glVertex2f(x2 / 2, y2 / 2);
+                    glVertex2f(x3 / 2, y3 / 2);
+                    glEnd();
+                }
+
+                else {
+                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima terceira
+                }
+
+                
+
+            }else {
+                if (loadObj("C:/Users/vanpe/Downloads/exem.obj", vertices)) {
+                    // Processar os dados
+                    if (!aux) {
+                        glBegin(GL_LINE_STRIP);
+                        glColor3f(1.0f, 0.0f, 1.0f);
+                        for (int i = 0; i < vertices.size(); i++) {
+                            glVertex2f(((vertices[i].x/2)), ((vertices[i].y/2)));
+                        }
+                        glEnd();
+                    }
+                    else {
+                        drawBezierCurve(vertices[0].x, vertices[0].y, vertices[1].x, vertices[1].y, vertices[2].x, vertices[2].y, vertices[3].x, vertices[3].y);
+                    }
+                }
+            }
+            /* Poll for and process events */
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+            glfwSetKeyCallback(window, teclado);
     }
-
-        /* Poll for and process events */
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-        glfwSetKeyCallback(window, teclado);
-
-    }
-
     glfwTerminate();
     return 0;
 }
