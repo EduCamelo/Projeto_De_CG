@@ -10,22 +10,40 @@ struct Vertex {
     float x, y;
 };
 
+struct translate {
+    float x, y;
+};
+
+struct rotate {
+    float x, y;
+};
+
+struct scale {
+    float x, y;
+};
+
+struct cisa {
+    float x,y;
+};
+
 
 bool aux = false, aux2 = false, aux3 = true;
+
+
 
 void drawBezierCurve(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3) {
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_LINE_STRIP);
     for (int i = 0; i <= 100; i++) {
         float t = i / 100.0f;
-        float x = pow(1 - t, 3) * (x0/2) + 3 * t * pow(1 - t, 2) * (x1/2) + 3 * pow(t, 2) * (1 - t) * (x2/2) + pow(t, 3) * (x3/2);
-        float y = pow(1 - t, 3) * (y0/2) + 3 * t * pow(1 - t, 2) * (y1/2) + 3 * pow(t, 2) * (1 - t) * (y2/2) + pow(t, 3) * (y3/2);
+        float x = pow(1 - t, 3) * (x0) + 3 * t * pow(1 - t, 2) * (x1) + 3 * pow(t, 2) * (1 - t) * (x2) + pow(t, 3) * (x3);
+        float y = pow(1 - t, 3) * (y0) + 3 * t * pow(1 - t, 2) * (y1) + 3 * pow(t, 2) * (1 - t) * (y2) + pow(t, 3) * (y3);
         glVertex2d(x, y);
     }
     glEnd();
 }
 
-bool loadObj(const char* filename, std::vector<Vertex>& vertices) {
+bool loadObj(const char* filename, std::vector<Vertex>& vertices, std::vector<int>& transformacao,std::vector<translate>& translacao,std::vector<rotate>& rotacao, std::vector<scale>& escala,std::vector<cisa>& cisalhamento) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Erro ao abrir o arquivo.\n";
@@ -37,9 +55,33 @@ bool loadObj(const char* filename, std::vector<Vertex>& vertices) {
         if (line.substr(0, 2) == "v ") {
             Vertex vertex;
             sscanf_s(line.c_str(), "v %f %f", &vertex.x, &vertex.y);
-            vertex.x = (vertex.x*2) / 100;
-            vertex.y = (vertex.y* 2) / 100;
+            vertex.x = vertex.x / 2;
+            vertex.y = vertex.y / 2;
             vertices.push_back(vertex);
+        }
+        else if (line.substr(0, 2) == "t ") {
+            translate trans;
+            sscanf_s(line.c_str(), "t %f %f", &trans.x, &trans.y);
+            transformacao.push_back(1);
+            translacao.push_back(trans);
+        }
+        else if (line.substr(0, 2) == "r ") {
+            rotate rot;
+            sscanf_s(line.c_str(), "r %f", &rot.x);
+            transformacao.push_back(2);
+            rotacao.push_back(rot);
+        }
+        else if (line.substr(0, 2) == "s ") {
+            scale esc;
+            sscanf_s(line.c_str(), "s %f %f", &esc.x, &esc.y);
+            transformacao.push_back(3);
+            escala.push_back(esc);
+        }
+        else if (line.substr(0, 2) == "c ") {
+            cisa c;
+            sscanf_s(line.c_str(), "c %f %f", &c.x, &c.y);
+            transformacao.push_back(4);
+            cisalhamento.push_back(c);
         }
     }
 
@@ -71,6 +113,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 int main(void)
 {
     std::vector<Vertex> vertices;
+    std::vector<int> transformacao;
+    std::vector<translate> translacao;
+    std::vector<rotate> rotacao;
+    std::vector<scale> escala;
+    std::vector<cisa> cisalhamento;
+
     GLFWwindow* window;
 
     /* Initialize the library */
@@ -92,11 +140,13 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
     /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
-    {
-        glClear(GL_COLOR_BUFFER_BIT);
-        /* Render here */
-          // Desenhe os eixos X e Y
+
+    if (loadObj("C:/Users/vanpe/source/repos/teste1/gato.obj", vertices, transformacao, translacao, rotacao, escala, cisalhamento)) {
+        while (!glfwWindowShouldClose(window))
+        {
+            glClear(GL_COLOR_BUFFER_BIT);
+            /* Render here */
+              // Desenhe os eixos X e Y
             glBegin(GL_LINES);
             // Eixo X (verde)
             glColor3f(0.0f, 1.0f, 0.0f);
@@ -107,268 +157,36 @@ int main(void)
             glVertex2f(0.0f, -1.0f);
             glVertex2f(0.0f, 1.0f);
             glEnd();
-  
 
-    // Define os pontos de controle da curva de Bézier
-            if (aux3) {
-                float x0 = 0.19f, y0 = -0.47f;
-                float x1 = 0.66f, y1 = -0.45f;
-                float x2 = 0.73f, y2 = -0.07f;
-                float x3 = 0.54f, y3 = 0.3f;
 
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
+            // Define os pontos de controle da curva de Bézier
+
+                        // Processar os dados
+            if (!aux) {
+                glBegin(GL_LINE_STRIP);
+                glColor3f(1.0f, 0.0f, 1.0f);
+                for (int i = 1; i < vertices.size(); i += 3) {
+                    glVertex2f(vertices[i - 1].x, vertices[i - 1].y);
+                    glVertex2f(vertices[i].x, vertices[i].y);
+                    glVertex2f(vertices[i + 1].x, vertices[i + 1].y);
+                    glVertex2f(vertices[i + 2].x, vertices[i + 2].y);
                 }
-                else {
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Primeira curva
-                }
-
-                x0 = x3, y0 = y3,
-                    x1 = 0.60f, y1 = 0.64f,
-                    x2 = 0.50f, y2 = 0.60f,
-                    x3 = 0.25f, y3 = 0.46f;
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
-                }
-                else {
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Segunda curva
-                }
-
-                x0 = x3, y0 = y3,
-                    x1 = 0.13f, y1 = 0.48f,
-                    x2 = 0.01f, y2 = 0.52f,
-                    x3 = -0.25f, y3 = 0.46f;
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
-                }
-
-                else {
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Terceira
-                }
-
-                x0 = x3, y0 = y3,
-                    x1 = -0.50f, y1 = 0.60f,
-                    x2 = -0.60f, y2 = 0.64f,
-                    x3 = -0.54f, y3 = 0.30f;
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
-                }
-
-                else {
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Quarta
-                }
-
-
-                x0 = x3, y0 = y3,
-                    x1 = -0.73f, y1 = 0.07f,
-                    x2 = -0.66f, y2 = -0.45f,
-                    x3 = -0.19f, y3 = -0.47f;
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
-                }
-
-                else {
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Quinta
-                }
-
-                x0 = x3, y0 = y3,
-                    x1 = -0.28f, y1 = -0.56f,
-                    x2 = -0.16f, y2 = -0.64f,
-                    x3 = -0.42f, y3 = -0.62f;
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
-                }
-
-                else {
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Sexta
-                }
-
-                x0 = x3, y0 = y3,
-                    x1 = -0.54f, y1 = -0.58f,
-                    x2 = -0.53f, y2 = -0.39f,
-                    x3 = -0.73f, y3 = -0.42f;
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
-                }
-
-                else {
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Setima
-                }
-
-                x0 = x3, y0 = y3,
-                    x1 = -0.77f, y1 = -0.45f,
-                    x2 = -0.65f, y2 = -0.45f,
-                    x3 = -0.56f, y3 = -0.67f;
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
-                }
-
-                else {
-
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Oitava
-                }
-
-                x0 = x3, y0 = y3,
-                    x1 = -0.48f, y1 = -0.78f,
-                    x2 = -0.32f, y2 = -0.75f,
-                    x3 = -0.25f, y3 = -0.74f;
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
-                }
-
-                else {
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Nona
-                }
-
-                x0 = x3, y0 = y3,
-                    x1 = -0.26f, y1 = -0.90f,
-                    x2 = -0.22f, y2 = -0.96f,
-                    x3 = -0.30f, y3 = -0.98f;
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
-                }
-
-                else {
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima
-                }
-
-                x0 = x3, y0 = y3,
-                    x1 = -1.57f, y1 = -0.45f,
-                    x2 = -0.91f, y2 = 1.02f,
-                    x3 = 0.00f, y3 = 0.97f;
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
-                }
-
-                else {
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima primeira
-                }
-
-                x0 = x3, y0 = y3,
-                    x1 = 0.91f, y1 = 1.02f,
-                    x2 = 1.57f, y2 = -0.45f,
-                    x3 = 0.30f, y3 = -0.98f;
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
-                }
-
-                else {
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima segunda
-                }
-
-                x0 = x3, y0 = y3,
-                    x1 = 0.18f, y1 = -0.96f,
-                    x2 = 0.32f, y2 = -0.67f,
-                    x3 = 0.19f, y3 = -0.47f;
-                if (!aux) {
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.0f, 0.0f, 1.0f);
-                    glVertex2f(x0 / 2, y0 / 2);
-                    glVertex2f(x1 / 2, y1 / 2);
-                    glVertex2f(x2 / 2, y2 / 2);
-                    glVertex2f(x3 / 2, y3 / 2);
-                    glEnd();
-                }
-
-                else {
-                    drawBezierCurve(x0, y0, x1, y1, x2, y2, x3, y3);//Decima terceira
-                }
-
-                
-
-            }else {
-                if (loadObj("C:/Users/vanpe/Downloads/exem.obj", vertices)) {
-                    // Processar os dados
-                    if (!aux) {
-                        glBegin(GL_LINE_STRIP);
-                        glColor3f(1.0f, 0.0f, 1.0f);
-                        for (int i = 0; i < vertices.size(); i++) {
-                            glVertex2f(((vertices[i].x/2)), ((vertices[i].y/2)));
-                        }
-                        glEnd();
-                    }
-                    else {
-                        drawBezierCurve(vertices[0].x, vertices[0].y, vertices[1].x, vertices[1].y, vertices[2].x, vertices[2].y, vertices[3].x, vertices[3].y);
-                    }
+                glEnd();
+            }
+            else {
+                for (int i = 1; i < vertices.size(); i += 3) {
+                    drawBezierCurve(vertices[i - 1].x, vertices[i - 1].y, vertices[i].x, vertices[i].y, vertices[i + 1].x, vertices[i + 1].y, vertices[i + 2].x, vertices[i + 2].y);
                 }
             }
+
+
             /* Poll for and process events */
             glfwSwapBuffers(window);
             glfwPollEvents();
             glfwSetKeyCallback(window, teclado);
+        }
+
+        glfwTerminate();
     }
-    glfwTerminate();
     return 0;
 }
