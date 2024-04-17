@@ -5,32 +5,24 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <cmath>
 
+//Estruturas para a plotagem de pontos e transformações
 struct Vertex {
     float x, y;
 };
 
-struct translate {
+struct Transforme {
     float x, y;
 };
 
-struct rotate {
-    float x, y;
-};
-
-struct scale {
-    float x, y;
-};
-
-struct cisa {
-    float x,y;
-};
 
 
+//Vars de controle global
 bool aux = false, aux2 = false, aux3 = true;
+int pimp = 0;
 
-
-
+//Desenho de Bezier
 void drawBezierCurve(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3) {
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_LINE_STRIP);
@@ -43,7 +35,8 @@ void drawBezierCurve(float x0, float y0, float x1, float y1, float x2, float y2,
     glEnd();
 }
 
-bool loadObj(const char* filename, std::vector<Vertex>& vertices, std::vector<int>& transformacao,std::vector<translate>& translacao,std::vector<rotate>& rotacao, std::vector<scale>& escala,std::vector<cisa>& cisalhamento) {
+//Leitura do arquivo.obj
+bool loadObj(const char* filename, std::vector<Vertex>& vertices, std::vector<int>& transformacao,std::vector<Transforme>& transforme) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Erro ao abrir o arquivo.\n";
@@ -55,33 +48,32 @@ bool loadObj(const char* filename, std::vector<Vertex>& vertices, std::vector<in
         if (line.substr(0, 2) == "v ") {
             Vertex vertex;
             sscanf_s(line.c_str(), "v %f %f", &vertex.x, &vertex.y);
-            vertex.x = vertex.x / 2;
-            vertex.y = vertex.y / 2;
             vertices.push_back(vertex);
         }
         else if (line.substr(0, 2) == "t ") {
-            translate trans;
+            Transforme trans;
             sscanf_s(line.c_str(), "t %f %f", &trans.x, &trans.y);
             transformacao.push_back(1);
-            translacao.push_back(trans);
+            transforme.push_back(trans);
         }
         else if (line.substr(0, 2) == "r ") {
-            rotate rot;
+            Transforme rot;
             sscanf_s(line.c_str(), "r %f", &rot.x);
+            rot.y = 0;
             transformacao.push_back(2);
-            rotacao.push_back(rot);
+            transforme.push_back(rot);
         }
         else if (line.substr(0, 2) == "s ") {
-            scale esc;
+            Transforme esc;
             sscanf_s(line.c_str(), "s %f %f", &esc.x, &esc.y);
             transformacao.push_back(3);
-            escala.push_back(esc);
+            transforme.push_back(esc);
         }
         else if (line.substr(0, 2) == "c ") {
-            cisa c;
+            Transforme c;
             sscanf_s(line.c_str(), "c %f %f", &c.x, &c.y);
             transformacao.push_back(4);
-            cisalhamento.push_back(c);
+            transforme.push_back(c);
         }
     }
 
@@ -89,7 +81,7 @@ bool loadObj(const char* filename, std::vector<Vertex>& vertices, std::vector<in
     return true;
 }
 
-
+//Teclado e funções do teclado
 static void teclado(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if ((key == GLFW_KEY_ESCAPE || key == GLFW_KEY_Q) && action == GLFW_PRESS) {
@@ -103,21 +95,103 @@ static void teclado(GLFWwindow* window, int key, int scancode, int action, int m
     if(key == GLFW_KEY_A && action == GLFW_PRESS) {
         aux3 = !aux3;
     }
+
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        aux2 = !aux2;
+    }
+
 }
 
+//Atualizando pontos
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+
+}
+
+
+//Logica do desenho
+void desenho(std::vector<Vertex> vertices) {
+    if (!aux) {
+        glBegin(GL_LINE_STRIP);
+        glColor3f(1.0f, 0.0f, 1.0f);
+        for (int i = 1; i < vertices.size(); i += 3) {
+            glVertex2f(vertices[i - 1].x, vertices[i - 1].y);
+            glVertex2f(vertices[i].x, vertices[i].y);
+            glVertex2f(vertices[i + 1].x, vertices[i + 1].y);
+            glVertex2f(vertices[i + 2].x, vertices[i + 2].y);
+        }
+        glEnd();
+    }
+    for (int i = 1; i < vertices.size(); i += 3) {
+        drawBezierCurve(vertices[i - 1].x, vertices[i - 1].y, vertices[i].x, vertices[i].y, vertices[i + 1].x, vertices[i + 1].y, vertices[i + 2].x, vertices[i + 2].y);
+    }
+    glFlush();
+}
+
+//Logica do escala, 2d
+void escala(std::vector<Vertex>& transforme, float escalaX, float escalaY) {
+    std::vector<Vertex> auxTransforme(transforme);
+    transforme.clear();
+    for ( const auto& point : auxTransforme)
+    {
+        Vertex pontoTransformado;
+        pontoTransformado.x = point.x * escalaX;
+        pontoTransformado.y = point.y * escalaY;
+        transforme.push_back(pontoTransformado);
+    }
+}
+
+//Logica do translacao, 2d
+void translacao(std::vector<Vertex>& transforme, float transX, float transY) {
+    std::vector<Vertex> auxTransforme(transforme);
+    transforme.clear();
+    for (const auto& point : auxTransforme)
+    {
+        Vertex pontoTransformado;
+        pontoTransformado.x = point.x + transX;
+        pontoTransformado.y = point.y + transY;
+        transforme.push_back(pontoTransformado);
+    }
+}
+
+//Logica do rotação, 2d
+void rotacaoPontos(std::vector<Vertex>& transforme,float angle) {
+    std::vector<Vertex> auxTransforme(transforme);
+    transforme.clear(); 
+    float cos = std::cos(angle);
+    float seno = std::sin(angle);
+
+    for (const auto& point : auxTransforme) {
+        Vertex pontoTransformado;
+        pontoTransformado.x = point.x * cos - point.y * seno;
+        pontoTransformado.y = point.x * seno + point.y * cos;
+        transforme.push_back(pontoTransformado);
+    }
+}
+
+//Logica do cisalhamento, 2d
+void cisa(std::vector<Vertex>& transforme,float shearX, float shearY){
+        std::vector<Vertex> auxTransforme(transforme);
+        transforme.clear();
+        // Aplicar cisalhamento aos pontos originais
+        for (const auto& point : auxTransforme) {
+            Vertex pontoTransformado;
+
+            pontoTransformado.x = point.x + shearX * point.y;
+            pontoTransformado.y = point.y + shearY * point.x;
+
+            transforme.push_back(pontoTransformado);
+        }
+    
 }
 
 int main(void)
 {
+    //Vetores
     std::vector<Vertex> vertices;
     std::vector<int> transformacao;
-    std::vector<translate> translacao;
-    std::vector<rotate> rotacao;
-    std::vector<scale> escala;
-    std::vector<cisa> cisalhamento;
+    std::vector<Transforme> transforme;
 
     GLFWwindow* window;
 
@@ -126,7 +200,7 @@ int main(void)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(1280, 720, "Desenho do gatinho", NULL, NULL);
+    window = glfwCreateWindow(640, 480, "Desenho do gatinho", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -141,45 +215,70 @@ int main(void)
     glfwMakeContextCurrent(window);
     /* Loop until the user closes the window */
 
-    if (loadObj("C:/Users/vanpe/source/repos/teste1/gato.obj", vertices, transformacao, translacao, rotacao, escala, cisalhamento)) {
+    if (loadObj("C:/Users/vanpe/source/repos/teste1/gato.obj", vertices, transformacao, transforme)) {
+        std::vector<Vertex> transformado(vertices);
         while (!glfwWindowShouldClose(window))
         {
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glOrtho(-320, 320, -240, 240, 0, 1);
+            glMatrixMode(GL_MODELVIEW);
             glClear(GL_COLOR_BUFFER_BIT);
             /* Render here */
-              // Desenhe os eixos X e Y
+
+            // Desenha os eixos X e Y
             glBegin(GL_LINES);
             // Eixo X (verde)
             glColor3f(0.0f, 1.0f, 0.0f);
-            glVertex2f(-1.0f, 0.0f);
-            glVertex2f(1.0f, 0.0f);
+            glVertex2f(-320, 0.0f);
+            glVertex2f(320, 0.0f);
             // Eixo Y (azul)
             glColor3f(0.0f, 0.0f, 1.0f);
-            glVertex2f(0.0f, -1.0f);
-            glVertex2f(0.0f, 1.0f);
+            glVertex2f(0.0f, -240);
+            glVertex2f(0.0f, 240);
             glEnd();
 
+            //Pinta o desenho
+            desenho(transformado);
 
-            // Define os pontos de controle da curva de Bézier
+            if (aux2) {
+                if (pimp != transformacao.size()) {
+                    switch (transformacao[pimp])
+                    {
+                    case 1:
+                        //translação
+                        translacao(transformado, transforme[pimp].x, transforme[pimp].y);
+                        break;
 
-                        // Processar os dados
-            if (!aux) {
-                glBegin(GL_LINE_STRIP);
-                glColor3f(1.0f, 0.0f, 1.0f);
-                for (int i = 1; i < vertices.size(); i += 3) {
-                    glVertex2f(vertices[i - 1].x, vertices[i - 1].y);
-                    glVertex2f(vertices[i].x, vertices[i].y);
-                    glVertex2f(vertices[i + 1].x, vertices[i + 1].y);
-                    glVertex2f(vertices[i + 2].x, vertices[i + 2].y);
+                    case 2:
+                        //rotação
+                        rotacaoPontos(transformado, transforme[pimp].x);
+                        break;
+                    case 3:
+                        //Escala
+                        escala(transformado,transforme[pimp].x, transforme[pimp].y);
+
+                        break;
+
+                    case 4:
+                        //Cisalhamento
+                        cisa(transformado, transforme[pimp].x, transforme[pimp].y);
+                        break;
+                    }
+                    pimp++;
                 }
-                glEnd();
-            }
-            else {
-                for (int i = 1; i < vertices.size(); i += 3) {
-                    drawBezierCurve(vertices[i - 1].x, vertices[i - 1].y, vertices[i].x, vertices[i].y, vertices[i + 1].x, vertices[i + 1].y, vertices[i + 2].x, vertices[i + 2].y);
+                else {
+                    pimp = 0;
+                    transformado.clear();
+                    for (size_t i = 0; i < vertices.size(); i++)
+                    {
+                        transformado.push_back(vertices[i]);
+                    }
                 }
+                aux2 = false;
+                
             }
-
-
+                
             /* Poll for and process events */
             glfwSwapBuffers(window);
             glfwPollEvents();
