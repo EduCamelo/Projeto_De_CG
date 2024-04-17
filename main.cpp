@@ -19,12 +19,11 @@ struct Transforme {
 
 
 //Vars de controle global
-bool aux = false, aux2 = false, aux3 = true;
+bool aux = true, aux2 = false, aux3 = true;
 int pimp = 0;
 
 //Desenho de Bezier
 void drawBezierCurve(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3) {
-    glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_LINE_STRIP);
     for (int i = 0; i <= 100; i++) {
         float t = i / 100.0f;
@@ -124,6 +123,26 @@ void desenho(std::vector<Vertex> vertices) {
         glEnd();
     }
     for (int i = 1; i < vertices.size(); i += 3) {
+        glColor3f(1.0f, 0.0f, 0.0f);
+        drawBezierCurve(vertices[i - 1].x, vertices[i - 1].y, vertices[i].x, vertices[i].y, vertices[i + 1].x, vertices[i + 1].y, vertices[i + 2].x, vertices[i + 2].y);
+    }
+    glFlush();
+}
+
+void desenho2(std::vector<Vertex> vertices) {
+    if (!aux) {
+        glBegin(GL_LINE_STRIP);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        for (int i = 1; i < vertices.size(); i += 3) {
+            glVertex2f(vertices[i - 1].x, vertices[i - 1].y);
+            glVertex2f(vertices[i].x, vertices[i].y);
+            glVertex2f(vertices[i + 1].x, vertices[i + 1].y);
+            glVertex2f(vertices[i + 2].x, vertices[i + 2].y);
+        }
+        glEnd();
+    }
+    for (int i = 1; i < vertices.size(); i += 3) {
+        glColor3f(0.0f, 1.0f, 1.0f);
         drawBezierCurve(vertices[i - 1].x, vertices[i - 1].y, vertices[i].x, vertices[i].y, vertices[i + 1].x, vertices[i + 1].y, vertices[i + 2].x, vertices[i + 2].y);
     }
     glFlush();
@@ -156,16 +175,20 @@ void translacao(std::vector<Vertex>& transforme, float transX, float transY) {
 }
 
 //Logica do rotação, 2d
-void rotacaoPontos(std::vector<Vertex>& transforme,float angle) {
+void rotacaoPontos(std::vector<Vertex>& transforme,float angle, Vertex centro) {
     std::vector<Vertex> auxTransforme(transforme);
     transforme.clear(); 
+    
+    // Tive que transformar graus em radianos (obs: proximei PI)
+    angle = angle * 3.14 / 180;
     float cos = std::cos(angle);
     float seno = std::sin(angle);
 
     for (const auto& point : auxTransforme) {
         Vertex pontoTransformado;
-        pontoTransformado.x = point.x * cos - point.y * seno;
-        pontoTransformado.y = point.x * seno + point.y * cos;
+
+        pontoTransformado.x = centro.x+(point.x - centro.x)*cos-(point.y-centro.y)*seno;
+        pontoTransformado.y = centro.y+(point.x - centro.x)* seno + (point.y - centro.y)*cos;
         transforme.push_back(pontoTransformado);
     }
 }
@@ -217,6 +240,7 @@ int main(void)
 
     if (loadObj("C:/Users/vanpe/source/repos/teste1/gato.obj", vertices, transformacao, transforme)) {
         std::vector<Vertex> transformado(vertices);
+        std::vector<Vertex> anterior;
         while (!glfwWindowShouldClose(window))
         {
             glMatrixMode(GL_PROJECTION);
@@ -239,10 +263,18 @@ int main(void)
             glEnd();
 
             //Pinta o desenho
+            if (aux3) {
+                desenho2(anterior);
+            }
             desenho(transformado);
 
             if (aux2) {
                 if (pimp != transformacao.size()) {
+                    anterior.clear();
+                    for (size_t i = 0; i < transformado.size(); i++)
+                    {
+                        anterior.push_back(transformado[i]);
+                    }
                     switch (transformacao[pimp])
                     {
                     case 1:
@@ -252,12 +284,14 @@ int main(void)
 
                     case 2:
                         //rotação
-                        rotacaoPontos(transformado, transforme[pimp].x);
+                        Vertex centro_rotacao;
+                        std::cout << "Digite as coordenadas do ponto central de rotação (x y): ";
+                        std::cin >> centro_rotacao.x >> centro_rotacao.y;
+                        rotacaoPontos(transformado, transforme[pimp].x, centro_rotacao);
                         break;
                     case 3:
                         //Escala
                         escala(transformado,transforme[pimp].x, transforme[pimp].y);
-
                         break;
 
                     case 4:
