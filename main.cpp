@@ -194,15 +194,15 @@ void rotacaoPontos(std::vector<Vertex>& transforme,float angle, Vertex centro) {
 }
 
 //Logica do cisalhamento, 2d
-void cisa(std::vector<Vertex>& transforme,float shearX, float shearY){
+void cisa(std::vector<Vertex>& transforme,float shearX, float shearY, Vertex centro){
         std::vector<Vertex> auxTransforme(transforme);
         transforme.clear();
         // Aplicar cisalhamento aos pontos originais
         for (const auto& point : auxTransforme) {
             Vertex pontoTransformado;
 
-            pontoTransformado.x = point.x + shearX * point.y;
-            pontoTransformado.y = point.y + shearY * point.x;
+            pontoTransformado.x = point.x + shearX * (point.y-centro.y);
+            pontoTransformado.y = point.y + shearY * (point.x- centro.x);
 
             transforme.push_back(pontoTransformado);
         }
@@ -215,6 +215,10 @@ int main(void)
     std::vector<Vertex> vertices;
     std::vector<int> transformacao;
     std::vector<Transforme> transforme;
+    std::string caminho;
+    std::cout << "Digite o caminho do arquivo (exemplo: C:/pasta/arquivo.obj): ";
+    std::getline(std::cin, caminho);
+    const char* Pointer = caminho.c_str();
 
     GLFWwindow* window;
 
@@ -237,8 +241,7 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
     /* Loop until the user closes the window */
-
-    if (loadObj("C:/Users/vanpe/source/repos/teste1/gato.obj", vertices, transformacao, transforme)) {
+    if (loadObj(Pointer, vertices, transformacao, transforme)) {
         std::vector<Vertex> transformado(vertices);
         std::vector<Vertex> anterior;
         while (!glfwWindowShouldClose(window))
@@ -269,12 +272,12 @@ int main(void)
             desenho(transformado);
 
             if (aux2) {
+                anterior.clear();
+                for (size_t i = 0; i < transformado.size(); i++)
+                {
+                    anterior.push_back(transformado[i]);
+                }
                 if (pimp != transformacao.size()) {
-                    anterior.clear();
-                    for (size_t i = 0; i < transformado.size(); i++)
-                    {
-                        anterior.push_back(transformado[i]);
-                    }
                     switch (transformacao[pimp])
                     {
                     case 1:
@@ -296,7 +299,10 @@ int main(void)
 
                     case 4:
                         //Cisalhamento
-                        cisa(transformado, transforme[pimp].x, transforme[pimp].y);
+                        Vertex centro_cisa;
+                        std::cout << "Digite as coordenadas do ponto central do cisalhamento (x y): ";
+                        std::cin >> centro_cisa.x >> centro_cisa.y;
+                        cisa(transformado, transforme[pimp].x, transforme[pimp].y, centro_cisa);
                         break;
                     }
                     pimp++;
