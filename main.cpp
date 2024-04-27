@@ -7,7 +7,17 @@
 #include <string>
 #include <cmath>
 
-//Estruturas para a plotagem de pontos e transformações
+/*
+    Alunos:
+        - Matheus aroeira
+        - Eduardo Camelo
+        - Pedro queiroga
+        - Loren gabriela
+        - Evellyn Alane
+        - Antonio Henrique
+*/
+
+//Estruturas para a plotagem de pontos e transformaÃ§Ãµes
 struct Vertex {
     float x, y;
 };
@@ -80,7 +90,7 @@ bool loadObj(std::string filename, std::vector<Vertex>& vertices, std::vector<in
     return true;
 }
 
-//Teclado e funções do teclado
+//Teclado e funÃ§Ãµes do teclado
 static void teclado(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if ((key == GLFW_KEY_ESCAPE || key == GLFW_KEY_Q) && action == GLFW_PRESS) {
@@ -130,17 +140,6 @@ void desenho(std::vector<Vertex> vertices) {
 }
 
 void desenho2(std::vector<Vertex> vertices) {
-    if (!aux) {
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.0f, 1.0f, 1.0f);
-        for (int i = 1; i < vertices.size(); i += 3) {
-            glVertex2f(vertices[i - 1].x, vertices[i - 1].y);
-            glVertex2f(vertices[i].x, vertices[i].y);
-            glVertex2f(vertices[i + 1].x, vertices[i + 1].y);
-            glVertex2f(vertices[i + 2].x, vertices[i + 2].y);
-        }
-        glEnd();
-    }
     for (int i = 1; i < vertices.size(); i += 3) {
         glColor3f(0.0f, 1.0f, 1.0f);
         drawBezierCurve(vertices[i - 1].x, vertices[i - 1].y, vertices[i].x, vertices[i].y, vertices[i + 1].x, vertices[i + 1].y, vertices[i + 2].x, vertices[i + 2].y);
@@ -148,22 +147,45 @@ void desenho2(std::vector<Vertex> vertices) {
     glFlush();
 }
 
-//Logica do escala, 2d
-void escala(std::vector<Vertex>& transforme, float escalaX, float escalaY) {
+void translacaoAux(std::vector<Vertex>& transforme, float x, float y) {
     std::vector<Vertex> auxTransforme(transforme);
     transforme.clear();
-    for (const auto& point : auxTransforme)
+    for (size_t i = 0; i < transforme.size(); i++)
     {
-        Vertex pontoTransformado;
-        pontoTransformado.x = point.x * escalaX;
-        pontoTransformado.y = point.y * escalaY;
-        transforme.push_back(pontoTransformado);
+        Vertex pontosAux;
+        pontosAux.x = auxTransforme[i].x + x;
+        pontosAux.x = auxTransforme[i].y + y;
+        transforme.push_back(pontosAux);
     }
 }
 
+//Logica do escala, 2d
+void translacaoT(std::vector<Vertex>& transforme,float x, float y) {
+
+    for (int i = 0; i < transforme.size(); ++i) {
+        transforme[i].x = transforme[i].x + x;
+        transforme[i].y = transforme[i].y + y;
+    }
+
+};
+void escala(std::vector<Vertex>& transforme,float x, float y, Vertex& fixo) {
+    float x1 = fixo.x;
+    float y1 = fixo.y;
+    // Translada para a origem
+    translacaoT(transforme,-x1, -y1);
+
+    for (int i = 0; i < transforme.size(); ++i) {
+        transforme[i].x = transforme[i].x * x;
+        transforme[i].y = transforme[i].y * y;
+    }
+    translacaoT(transforme,x1, y1);
+
+    // Translada para de volta origem
+};
+
 //Logica do translacao, 2d
 void translacao(std::vector<Vertex>& transforme, float transX, float transY) {
-    std::vector<Vertex> auxTransforme(transforme);
+    std::vector<Vertex>auxTransforme(transforme);
     transforme.clear();
     for (const auto& point : auxTransforme)
     {
@@ -174,8 +196,11 @@ void translacao(std::vector<Vertex>& transforme, float transX, float transY) {
     }
 }
 
-//Logica do rotação, 2d
+//Logica do rotaÃ§Ã£o, 2d
 void rotacaoPontos(std::vector<Vertex>& transforme, float angle, Vertex centro) {
+    float x1 = centro.x;
+    float y1 = centro.y;
+    translacaoT(transforme, -x1, -y1);
     std::vector<Vertex> auxTransforme(transforme);
     transforme.clear();
 
@@ -187,14 +212,18 @@ void rotacaoPontos(std::vector<Vertex>& transforme, float angle, Vertex centro) 
     for (const auto& point : auxTransforme) {
         Vertex pontoTransformado;
 
-        pontoTransformado.x = centro.x + (point.x - centro.x) * cos - (point.y - centro.y) * seno;
-        pontoTransformado.y = centro.y + (point.x - centro.x) * seno + (point.y - centro.y) * cos;
+        pontoTransformado.x = centro.x + point.x * cos - point.y * seno;
+        pontoTransformado.y = centro.y + point.x* seno + point.y  * cos;
         transforme.push_back(pontoTransformado);
     }
+    translacaoT(transforme, x1, y1);
 }
 
 //Logica do cisalhamento, 2d
 void cisa(std::vector<Vertex>& transforme, float shearX, float shearY, Vertex centro) {
+    float x1 = centro.x;
+    float y1 = centro.y;
+    translacaoT(transforme, -x1, -y1);
     std::vector<Vertex> auxTransforme(transforme);
     transforme.clear();
     // Aplicar cisalhamento aos pontos originais
@@ -206,6 +235,7 @@ void cisa(std::vector<Vertex>& transforme, float shearX, float shearY, Vertex ce
 
         transforme.push_back(pontoTransformado);
     }
+    translacaoT(transforme, x1, y1);
 
 }
 
@@ -281,20 +311,23 @@ int main(void)
                     switch (transformacao[pimp])
                     {
                     case 1:
-                        //translação
+                        //translaÃ§Ã£o
                         translacao(transformado, transforme[pimp].x, transforme[pimp].y);
                         break;
 
                     case 2:
-                        //rotação
+                        //rotaÃ§Ã£o
                         Vertex centro_rotacao;
-                        std::cout << "Digite as coordenadas do ponto central de rotação (x y): ";
+                        std::cout << "Digite as coordenadas do ponto central de rotaÃ§Ã£o (x y): ";
                         std::cin >> centro_rotacao.x >> centro_rotacao.y;
                         rotacaoPontos(transformado, transforme[pimp].x, centro_rotacao);
                         break;
                     case 3:
                         //Escala
-                        escala(transformado, transforme[pimp].x, transforme[pimp].y);
+                        Vertex centro_escala;
+                        std::cout << "Digite as coordenadas do ponto central de escala (x y): ";
+                        std::cin >> centro_escala.x >> centro_escala.y;
+                        escala(transformado, transforme[pimp].x, transforme[pimp].y, centro_escala);
                         break;
 
                     case 4:
@@ -313,6 +346,7 @@ int main(void)
                     for (size_t i = 0; i < vertices.size(); i++)
                     {
                         transformado.push_back(vertices[i]);
+                        anterior.clear();
                     }
                 }
                 aux2 = false;
